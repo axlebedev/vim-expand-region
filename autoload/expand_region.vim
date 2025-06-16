@@ -132,10 +132,8 @@ def GetCandidateDict(text_object: string): dict<any>
   var winview = winsaveview()
 
   # Use ! as much as possible
-  execute 'normal! v'
-  execute 'silent! normal ' .. text_object
   # The double quote is important
-  execute "normal! \<Esc>"
+  execute 'silent! normal! v' .. text_object .. "\<Esc>"
 
   var selection = GetVisualSelection()
   var ret = {
@@ -280,11 +278,7 @@ enddef
 # Perform the visual selection at the end. If the user wants to be left in
 # select mode, do so
 def SelectRegion()
-  execute 'normal! v'
-  execute 'normal ' .. candidates[cur_index].text_object
-  if UseSelectMode()
-    execute "normal! \<C-g>"
-  endif
+  execute 'normal! v' .. candidates[cur_index].text_object .. (UseSelectMode() ? "normal! \<C-g>" : '') 
 enddef
 
 # Expand or shrink the visual selection to the next candidate in the text object
