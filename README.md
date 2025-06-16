@@ -1,5 +1,6 @@
 ##### What's new in this fork:
-Rewritten to vim9script
+Rewritten to vim9script  
+Improved performance.
 
 # vim-expand-region
 
