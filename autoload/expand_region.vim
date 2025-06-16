@@ -45,7 +45,7 @@ Init()
 # Returns whether we should perform the region highlighting use visual mode or
 # select mode
 export def UseSelectMode(): bool
-  return g:expand_region_use_select_mode || index(split(saved_selectmode, ','), 'cmd') != -1
+  return g:expand_region_use_select_mode || saved_selectmode->split(',')->index('cmd') != -1
 enddef
 
 # Main function
@@ -112,11 +112,11 @@ enddef
 # Remove duplicates from the candidate list. Two candidates are duplicates if
 # they cover the exact same region (same length and same starting position)
 def RemoveDuplicate(input: list<dict<any>>)
-  var i = len(input) - 1
+  var i = input->len() - 1
   while i >= 1
     if input[i].length == input[i - 1].length &&
           input[i].start_pos == input[i - 1].start_pos
-      remove(input, i)
+      input->remove(i)
     endif
     i -= 1
   endwhile
@@ -155,7 +155,7 @@ enddef
 # and the global dictionary will be used as a fallback.
 def GetConfiguration(): dict<any>
   var configuration: dict<any> = {}
-  for ft in split(&ft, '\.')
+  for ft in &ft->split('\.')
     var ft_dict = $"g:expand_region_text_objects_{ft}"
     if exists(ft_dict)
       extend(configuration, eval(ft_dict))
@@ -207,7 +207,7 @@ def GetCandidateList(): list<dict<any>>
       if candidate.length == previous
         break
       endif
-      add(recursive_candidates, candidate)
+      recursive_candidates->add(candidate)
       count += 1
       previous = candidate.length
     endwhile
@@ -232,7 +232,7 @@ def GetVisualSelection(): dict<any>
   return {
         start_pos: start_pos,
         end_pos: end_pos,
-        length: len(join(lines, "\n"))
+        length: lines->join("\n")->len()
         }
 enddef
 
@@ -266,12 +266,12 @@ def ComputeCandidates(cursor_pos: list<any>)
   candidates = GetCandidateList()
 
   # Sort them and remove the ones with 0 or 1 length
-  filter(sort(candidates, SortTextObject), (_, val) => val.length > 1)
+  candidates->sort(SortTextObject)->filter((_, val) => val.length > 1)
 
   # Filter out the ones where the cursor falls outside of its region. i" and i'
   # can start after the cursor position, and ib can start before, so both checks
   # are needed
-  filter(candidates, (_, val) => IsCursorInside(saved_pos, val))
+  candidates->filter((_, val) => IsCursorInside(saved_pos, val))
 
   # Remove duplicates
   RemoveDuplicate(candidates)
@@ -303,7 +303,7 @@ def ExpandRegion(mode: string, direction: string)
 
   if direction == '+'
     # Expanding
-    if cur_index == len(candidates) - 1
+    if cur_index == candidates->len() - 1
       normal! gv
     else
       cur_index += 1
