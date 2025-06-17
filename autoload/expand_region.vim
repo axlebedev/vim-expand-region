@@ -129,23 +129,24 @@ enddef
 # length: The number of characters for the text object
 def GetCandidateDict(text_object: string): dict<any>
   # Store the current view so we can restore it at the end
-  var winview = winsaveview()
+  var curpos = getcursorcharpos()
 
   # Use ! as much as possible
   # The double quote is important
   execute 'silent! normal! v' .. text_object .. "\<Esc>"
 
   var selection = GetVisualSelection()
-  var ret = {
+
+  # Restore peace
+  # winrestview(winview)
+  setcursorcharpos(curpos[1], curpos[2])
+
+  return {
         text_object: text_object,
         start_pos: selection.start_pos,
         end_pos: selection.end_pos,
         length: selection.length,
         }
-
-  # Restore peace
-  winrestview(winview)
-  return ret
 enddef
 
 # Return dictionary of text objects that are to be used for the current
