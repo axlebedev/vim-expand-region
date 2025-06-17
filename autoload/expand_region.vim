@@ -180,24 +180,21 @@ def GetCandidateList(): list<dict<any>>
   var config = GetConfiguration()
 
   # Generate the candidate list for every defined text object
-  var cans = keys(config)->map((_, val) => GetCandidateDict(val))
+  var cands = keys(config)->map((_, val) => GetCandidateDict(val))
 
   # For the ones that are recursive, generate them until they no longer match
   # any region
   var recursive_candidates: list<dict<any>> = []
-  for i in cans
+  for cand in cands
+    var text_obj = cand.text_object
     # Continue if not recursive
-    if !config[i.text_object]
-      continue
-    endif
-    # If the first level is already empty, no point in going any further
-    if i.length == 0
+    if !config[text_obj] || cand.length == 0
       continue
     endif
     var count = 2
-    var previous = i.length
+    var previous = cand.length
     while true
-      var test = $"{count}{i.text_object}"
+      var test = count .. text_obj
       var candidate = GetCandidateDict(test)
       if candidate.length == 0
         break
@@ -206,7 +203,7 @@ def GetCandidateList(): list<dict<any>>
       if candidate.length == previous
         break
       endif
-      recursive_candidates->add(candidate)
+      recursive_candidates += [candidate]
       count += 1
       previous = candidate.length
     endwhile
@@ -215,7 +212,7 @@ def GetCandidateList(): list<dict<any>>
   # Restore wrapscan
   &wrapscan = save_wrapscan
 
-  return extend(cans, recursive_candidates)
+  return extend(cands, recursive_candidates)
 enddef
 
 # Return a dictionary containing the start position, end position and length of
