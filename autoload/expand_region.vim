@@ -309,7 +309,7 @@ def ExpandRegion(mode: string, direction: string)
       # In visual mode, doing nothing here will return us to normal mode. For
       # select mode, the following is needed.
       if UseSelectMode()
-        execute "normal! gV"
+        normal! gV
       endif
     else
       cur_index -= 1
