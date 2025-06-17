@@ -173,6 +173,7 @@ enddef
 # start_pos: The result of getpos() on the starting position of the text object
 # length: The number of characters for the text object
 def GetCandidateList(): list<dict<any>>
+  var winview = winsaveview()
   # Turn off wrap to allow recursive search to work without triggering errors
   var save_wrapscan = &wrapscan
   set nowrapscan
@@ -212,6 +213,7 @@ def GetCandidateList(): list<dict<any>>
   # Restore wrapscan
   &wrapscan = save_wrapscan
 
+  winrestview(winview)
   return extend(cands, recursive_candidates)
 enddef
 
@@ -299,8 +301,6 @@ def ExpandRegion(mode: string, direction: string)
       normal! gv
     else
       cur_index += 1
-      # Associate the window view with the text object
-      candidates[cur_index].prev_winview = winsaveview()
       SelectRegion()
     endif
   else
@@ -312,8 +312,6 @@ def ExpandRegion(mode: string, direction: string)
         execute "normal! gV"
       endif
     else
-      # Restore the window view
-      winrestview(candidates[cur_index].prev_winview)
       cur_index -= 1
       SelectRegion()
     endif
